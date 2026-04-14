@@ -2,9 +2,19 @@ import { query } from "express-validator";
 
 export const classifyNameValidator = [
   query("name")
-    .notEmpty()
-    .isString()
+    .exists()
     .withMessage("Name is required")
-    .isLength({ min: 1, max: 50 })
-    .withMessage("Name must be between 1 and 50 characters"),
+    .bail()
+    .custom((value) => {
+      if (typeof value !== "string") {
+        throw new Error("Name must be a string");
+      }
+      return true;
+    })
+    .bail()
+    .notEmpty()
+    .withMessage("Name cannot be empty")
+    .bail()
+    .matches(/^[A-Za-z\s\-']+$/)
+    .withMessage("Name must be a valid string without numbers or invalid characters"),
 ];

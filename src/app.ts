@@ -8,16 +8,43 @@ import v1Routes from "./routes/v1.route";
 import { globalErrorHandler } from "./middlewares/error.middleware";
 
 import { AppError } from "./utils/app-error.util";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 
-app.use(express.json());
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
+});
 
-// Middleware to inject processed_at
-app.use((req: Request, _: Response, next: NextFunction) => {
-  (req as any).processed_at = new Date().toISOString(); // UTC ISO 8601
+// Apply rate limiting to all requests
+app.use(limiter);
+
+// Middleware to inject processed_at and attach it to all JSON responses
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const processed_at = new Date().toISOString(); // UTC ISO 8601
+  (req as unknown as Record<string, unknown>).processed_at = processed_at;
+
+  const originalJson = res.json;
+  res.json = function (body) {
+    if (body && typeof body === "object" && !Array.isArray(body)) {
+      body.processed_at = processed_at;
+    }
+    return originalJson.call(this, body);
+  };
+
   next();
 });
+
+// ==== Middlewares
+app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+  }),
+);
 
 app.use("/api", v1Routes);
 
