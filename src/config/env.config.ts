@@ -9,6 +9,6 @@ const requiredEnvVars = ["genderizeApiUrl", "port", "env", "debug"];
 
 requiredEnvVars.forEach((envVar) => {
   if (!envConfig[envVar as keyof typeof envConfig]) {
-    throw new Error(`${envVar} is not defined`);
+    console.error(`[CRITICAL] Environment variable ${envVar} is not defined!`);
   }
 });
