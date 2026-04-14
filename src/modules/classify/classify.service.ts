@@ -1,26 +1,30 @@
-import { AppError } from "src/utils/app-error.util";
-import { ClassifyApiResponse, ClassifyResponse } from "./classify.dtos";
+import { AppError } from "../../utils/app-error.util";
+import {
+  ClassifyApiResponseDTO,
+  ClassifyQueryDTO,
+  ClassifyResponseDTO,
+} from "./classify.dtos";
 
 export class ClassifyService {
   constructor(private genderizeApi: string) {}
 
-  async classifyName(name: string): Promise<ClassifyResponse> {
-    const response = await fetch(`${this.genderizeApi}/?name=${name}`);
+  async classifyName(data: ClassifyQueryDTO): Promise<ClassifyResponseDTO> {
+    const response = await fetch(`${this.genderizeApi}/?name=${data.name}`);
 
     if (!response.ok) {
       throw new AppError("Failed to classify name", 500);
     }
 
-    const data: ClassifyApiResponse = await response.json();
+    const res: ClassifyApiResponseDTO = await response.json();
 
-    const sample_size = data.count;
+    const sample_size = res.count;
 
     const payload = {
-      name,
-      gender: data.gender,
-      probability: data.probability,
+      name: res.name,
+      gender: res.gender,
+      probability: res.probability,
       sample_size,
-      is_confident: data.probability > 0.7 && sample_size >= 100,
+      is_confident: res.probability > 0.7 && sample_size >= 100,
     };
 
     return payload;

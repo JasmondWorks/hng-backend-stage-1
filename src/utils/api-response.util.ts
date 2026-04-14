@@ -1,26 +1,13 @@
 import { Response } from "express";
 
-export class ApiResponse {
-  public readonly success: boolean;
-
-  constructor(
-    public readonly statusCode: number,
-
-    public readonly data: any,
-
-    public readonly message: string = "Success",
-  ) {
-    this.success = statusCode < 400;
-  }
-}
-
 export const sendSuccess = (
   res: Response,
   data: any,
-  message = "Success",
+  _message?: string, // Kept for backwards compatibility but not used in the strict response
   statusCode = 200,
 ) => {
-  return res
-    .status(statusCode)
-    .json(new ApiResponse(statusCode, data, message));
+  return res.status(statusCode).json({
+    status: "success",
+    data,
+  });
 };

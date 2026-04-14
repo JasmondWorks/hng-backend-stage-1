@@ -29,8 +29,16 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
   const originalJson = res.json;
   res.json = function (body) {
-    if (body && typeof body === "object" && !Array.isArray(body)) {
-      body.processed_at = processed_at;
+    if (res.statusCode >= 200 && res.statusCode < 400) {
+      if (body && typeof body === "object" && !Array.isArray(body)) {
+        if (body.data && typeof body.data === "object" && !Array.isArray(body.data)) {
+          // Appends to the 'data' payload for successful wrapped responses
+          body.data.processed_at = processed_at;
+        } else {
+          // Fallback to top-level if no 'data' wrapper exists on success
+          body.processed_at = processed_at;
+        }
+      }
     }
     return originalJson.call(this, body);
   };

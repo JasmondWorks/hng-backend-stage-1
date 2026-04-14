@@ -1,18 +1,17 @@
 import { Request, Response } from "express";
 import { ClassifyService } from "./classify.service";
-import { sendSuccess } from "src/utils/api-response.util";
-import { AppError } from "@/utils/app-error.util";
+import { sendSuccess } from "../../utils/api-response.util";
+import { AppError } from "../../utils/app-error.util";
 import { ClassifyQueryDTO } from "./classify.dtos";
-import { getQuery } from "@/utils/get-query.util";
 
 export class ClassifyController {
   constructor(private classifyService: ClassifyService) {}
 
   async classifyName(req: Request, res: Response) {
     try {
-      const name = getQuery<ClassifyQueryDTO>(req.query);
+      const data = req.query as unknown as ClassifyQueryDTO;
 
-      const result = await this.classifyService.classifyName(name.name);
+      const result = await this.classifyService.classifyName(data);
 
       if (result.gender === null || result.sample_size === 0)
         throw new AppError(
