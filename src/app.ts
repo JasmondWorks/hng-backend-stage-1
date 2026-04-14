@@ -31,7 +31,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.json = function (body) {
     if (res.statusCode >= 200 && res.statusCode < 400) {
       if (body && typeof body === "object" && !Array.isArray(body)) {
-        if (body.data && typeof body.data === "object" && !Array.isArray(body.data)) {
+        if (
+          body.data &&
+          typeof body.data === "object" &&
+          !Array.isArray(body.data)
+        ) {
           // Appends to the 'data' payload for successful wrapped responses
           body.data.processed_at = processed_at;
         } else {
@@ -55,6 +59,10 @@ app.use(
 );
 
 app.use("/api", v1Routes);
+
+app.get("/", (_, res: Response) => {
+  res.status(200).json({ message: "Welcome to the HNG Backend API" });
+});
 
 // 404 catch-all
 
