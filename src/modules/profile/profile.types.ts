@@ -1,7 +1,7 @@
 export interface Profile {
   id: string;
   name: string;
-  gender: string | null;
+  gender: string;
   gender_probability: number;
   sample_size: number;
   age: number;
@@ -14,7 +14,7 @@ export interface Profile {
 export interface ProfileShortResponse {
   id: string;
   name: string;
-  gender: string | null;
+  gender: string;
   age: number;
   age_group: string;
   country_id: string;
@@ -22,7 +22,7 @@ export interface ProfileShortResponse {
 export interface ProfileResponse {
   id: string;
   name: string;
-  gender: string | null;
+  gender: string;
   gender_probability: number;
   sample_size: number;
   age: number;

@@ -32,11 +32,16 @@ export class ProfileService {
     let response: Response;
     try {
       response = await fetch(url);
-    } catch {
+    } catch (err) {
+      console.error(`[${apiName}] fetch failed for url=${url}:`, err);
       throw new AppError(`${apiName} returned an invalid response`, 502);
     }
-    if (!response.ok)
+    if (!response.ok) {
+      console.error(
+        `[${apiName}] non-ok status ${response.status} for url=${url}`,
+      );
       throw new AppError(`${apiName} returned an invalid response`, 502);
+    }
     return response.json() as Promise<T>;
   }
 
@@ -61,12 +66,26 @@ export class ProfileService {
       ),
     ]);
 
-    if (!genderData.gender || genderData.count === 0)
-      throw new AppError("Genderize returned an invalid response", 502);
-    if (ageData.age === null || ageData.age === undefined)
-      throw new AppError("Agify returned an invalid response", 502);
-    if (!countryData.country?.length)
-      throw new AppError("Nationalize returned an invalid response", 502);
+    const validations = [
+      {
+        valid: genderData.gender !== null && genderData.count !== 0,
+        api: "Genderize",
+      },
+      {
+        valid: ageData.age != null,
+        api: "Agify",
+      },
+      {
+        valid: !!countryData.country?.length,
+        api: "Nationalize",
+      },
+    ];
+
+    for (const v of validations) {
+      if (!v.valid) {
+        throw new AppError(`${v.api} returned an invalid response`, 502);
+      }
+    }
 
     const topCountry = [...countryData.country].sort(
       (a, b) => b.probability - a.probability,
@@ -77,8 +96,8 @@ export class ProfileService {
       gender: genderData.gender,
       gender_probability: genderData.probability,
       sample_size: genderData.count,
-      age: ageData.age,
-      age_group: this.categorizeAge(ageData.age),
+      age: ageData.age!,
+      age_group: this.categorizeAge(ageData.age!),
       country_id: topCountry.country_id,
       country_probability: topCountry.probability,
     };

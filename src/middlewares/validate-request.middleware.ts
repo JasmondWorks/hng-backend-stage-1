@@ -10,11 +10,11 @@ export const validateRequest = (
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    const messages = errors
-      .array()
-      .map((e) => e.msg)
-      .join(", ");
-    return next(new AppError(messages, 400));
+    const first = errors.array()[0];
+    const statusCode = first!.msg.toLowerCase().includes("unprocessable")
+      ? 422
+      : 400;
+    return next(new AppError(first!.msg, statusCode));
   }
 
   next();

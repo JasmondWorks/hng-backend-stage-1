@@ -11,12 +11,10 @@ export function stringBodyValidator(fieldName: string, message: string) {
       .withMessage(`${capitalizeFirstLetter(fieldName)} must be a string`)
       .bail()
       .notEmpty()
-      .withMessage(`${capitalizeFirstLetter(fieldName)} is required`)
+      .withMessage(`Missing or empty ${fieldName}`)
       .bail()
       .matches(/^[A-Za-z\s\-']+$/)
-      .withMessage(
-        `${capitalizeFirstLetter(fieldName)} must contain only letters, spaces, hyphens, or apostrophes`,
-      ),
+      .withMessage(`Unprocessable Entity: Invalid type`),
   ];
 }
 

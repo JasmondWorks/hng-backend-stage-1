@@ -5,6 +5,7 @@ import { ProfileRepository } from "./profile.repository";
 import { ProfileController } from "./profile.controller";
 import { ProfileService } from "./profile.service";
 import { createProfileValidator } from "./profile.validators";
+import { asyncHandler } from "../../utils/async-handler.util";
 
 const router: Router = Router();
 
@@ -23,10 +24,19 @@ router.post(
   "/",
   createProfileValidator,
   validateRequest,
-  profileController.createProfile.bind(profileController),
+  asyncHandler(profileController.createProfile.bind(profileController)),
 );
-router.get("/:id", profileController.getProfileById.bind(profileController));
-router.get("/", profileController.getAllProfiles.bind(profileController));
-router.delete("/:id", profileController.deleteProfile.bind(profileController));
+router.get(
+  "/",
+  asyncHandler(profileController.getAllProfiles.bind(profileController)),
+);
+router.get(
+  "/:id",
+  asyncHandler(profileController.getProfileById.bind(profileController)),
+);
+router.delete(
+  "/:id",
+  asyncHandler(profileController.deleteProfile.bind(profileController)),
+);
 
 export default router;
