@@ -12,6 +12,21 @@ export class ProfileRepository extends BaseRepository<
     super(ProfileModel);
   }
 
+  protected toEntity(doc: any): Profile {
+    const obj = doc.toObject ? doc.toObject() : { ...doc };
+    const { _id, __v, ...rest } = obj;
+    return rest as Profile;
+  }
+
+  async findById(id: string): Promise<Profile | null> {
+    const doc = await ProfileModel.findOne({ id });
+    return doc ? this.toEntity(doc) : null;
+  }
+
+  async delete(id: string): Promise<void> {
+    await ProfileModel.deleteOne({ id });
+  }
+
   async findByName(name: string): Promise<Profile | null> {
     const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const doc = await ProfileModel.findOne({

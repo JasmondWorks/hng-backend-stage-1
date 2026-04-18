@@ -1,10 +1,15 @@
-import { v7 as uuidv7 } from "uuid";
+import { randomUUID } from "crypto";
 import { model, Schema } from "mongoose";
 
 const profileSchema = new Schema(
   {
-    _id: { type: String, default: () => uuidv7() },
-    name: { type: String, required: true, unique: true },
+    id: {
+      type: String,
+      default: () => randomUUID(),
+      unique: true,
+      sparse: true,
+    },
+    name: { type: String, required: true },
     gender: { type: String, default: null },
     gender_probability: { type: Number, required: true },
     sample_size: { type: Number, required: true },
