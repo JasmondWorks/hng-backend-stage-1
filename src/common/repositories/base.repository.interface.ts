@@ -1,8 +1,10 @@
 export interface QueryParams {
-  sort?: string;
-  page?: number;
-  limit?: number;
+  sort_by?: string;
+  order?: string;
+  page?: string;
+  limit?: string;
   fields?: string;
+  [key: string]: any;
 }
 
 export interface IRepository<T, CreateInput, UpdateInput> {

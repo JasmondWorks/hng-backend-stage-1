@@ -38,9 +38,30 @@ export abstract class BaseRepository<
       .limitFields()
       .paginate();
 
-    const query = features.getQuery();
+    const docs = await features.getQuery();
+    return docs.map((doc: any) => this.toEntity(doc));
+  }
 
-    return await query;
+  async findAllWithPagination(queryParams: QueryParams) {
+    const countFeatures = new APIFeatures(this.model.find(), queryParams).filter();
+    const total = await countFeatures.getQuery().countDocuments();
+
+    const features = new APIFeatures(this.model.find(), queryParams)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const docs = await features.getQuery();
+    const data = docs.map((doc: any) => this.toEntity(doc));
+
+    const page = parseInt(queryParams.page ?? "1") || 1;
+    const limit = Math.min(parseInt(queryParams.limit ?? "10") || 10, 50);
+
+    return {
+      data,
+      pagination: { page, limit, total },
+    };
   }
 
   async findOne(filter: Partial<T>): Promise<T | null> {

@@ -1,7 +1,8 @@
 import { countriesList } from "../../common/constants/countries";
 import { QueryParams } from "../../common/repositories/base.repository.interface";
-import { APIFeatures } from "../../utils/api-features.util";
 import { AppError } from "../../utils/app-error.util";
+import { transformToMongoFilters } from "../../utils/filter-transformer.util";
+import { parseNaturalQuery } from "../../utils/nl-query-parser.util";
 import { CreateProfileDTO, ProfileDTO } from "./profile.dtos";
 import { ProfileRepository } from "./profile.repository";
 import {
@@ -12,6 +13,18 @@ import {
 } from "./profile.types";
 
 type ExternalApiName = "Genderize" | "Agify" | "Nationalize";
+
+interface ProfileQueryParams extends QueryParams {
+  q?: string;
+  gender?: string;
+  country_id?: string;
+  age_group?: string;
+  min_age?: string;
+  max_age?: string;
+  min_gender_probability?: string;
+  min_country_probability?: string;
+  max_country_probability?: string;
+}
 
 export class ProfileService {
   constructor(
@@ -117,25 +130,36 @@ export class ProfileService {
     return profile;
   }
 
-  async getAllProfiles(
-    queryParams: QueryParams,
-    options: {
-      gender?: string;
-      country_id?: string;
-      age_group?: string;
-    },
-  ) {
-    const mergedQuery = { ...queryParams, ...options };
-    const profiles = await this.profileRepo.findAll(mergedQuery as any);
+  async getAllProfiles(queryParams: ProfileQueryParams) {
+    const { q, ...rest } = queryParams;
 
-    return profiles.map(({ id, name, gender, age, age_group, country_id }) => ({
-      id,
-      name,
-      gender,
-      age,
-      age_group,
-      country_id,
-    }));
+    if (q) {
+      return this.getProfilesBySearchQuery(queryParams);
+    }
+
+    const result = await this.profileRepo.findAllWithPagination(rest);
+
+    return { data: result.data, pagination: result.pagination };
+  }
+
+  async getProfilesBySearchQuery(queryParams: ProfileQueryParams) {
+    const { q, ...rest } = queryParams;
+
+    const parsed = parseNaturalQuery(q!);
+
+    if (!parsed) {
+      throw new AppError("Unable to interpret query", 400);
+    }
+
+    const mongoFilters = transformToMongoFilters(parsed);
+
+    const searchParams = { ...rest, ...mongoFilters };
+
+    const result = await this.profileRepo.findAllWithPagination(
+      searchParams as any,
+    );
+
+    return { data: result.data, pagination: result.pagination };
   }
 
   async deleteProfile(id: string): Promise<void> {

@@ -19,11 +19,11 @@ export class ProfileRepository extends BaseRepository<
   }
 
   async findById(id: string): Promise<Profile | null> {
-    return this.findOne({ id });
+    return this.findOne({ id } as any);
   }
 
   async delete(id: string): Promise<void> {
-    return this.delete(id);
+    await ProfileModel.deleteOne({ id });
   }
 
   async findByName(name: string): Promise<Profile | null> {
