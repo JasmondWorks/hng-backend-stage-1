@@ -31,6 +31,12 @@ router.get(
   asyncHandler(profileController.getAllProfiles.bind(profileController)),
 );
 router.get(
+  "/search",
+  asyncHandler(
+    profileController.getProfilesBySearchQuery.bind(profileController),
+  ),
+);
+router.get(
   "/:id",
   asyncHandler(profileController.getProfileById.bind(profileController)),
 );
