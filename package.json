@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/server.js",
-    "build": "npx prisma generate && npx tsc",
-    "dev": "npx ts-node-dev -r tsconfig-paths/register --files src/server.ts",
+    "start": "node init && node dist/server.js",
+    "build": "node init && npx prisma generate && npx tsc",
+    "dev": "node init && npx ts-node-dev -r tsconfig-paths/register --files src/server.ts",
     "seed": "ts-node -r tsconfig-paths/register src/scripts/seed.ts",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
