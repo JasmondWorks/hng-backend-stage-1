@@ -53,7 +53,7 @@ model User {
   email         String    @db.VarChar()
   avatar_url    String    @map("avatar_url") @db.VarChar()
   role          UserRoles @default(analyst)
-  is_active     Boolean   @default(false) @map("is_active")
+  is_active     Boolean   @default(true) @map("is_active")
   last_login_at DateTime? @map("last_login_at") @db.Timestamptz
   created_at    DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
