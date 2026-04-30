@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
+import ms from "ms";
 import { AppError } from "../../utils/app-error.util";
 import { PrismaClient } from "@prisma/client";
 
@@ -181,9 +182,8 @@ export class AuthService {
       .update(rawRefreshToken)
       .digest("hex");
 
-    const refreshTokenExpiryInMinutes = Number(this.jwtRefreshTokenExpire);
     const refreshTokenExpiryDate = new Date(
-      Date.now() + refreshTokenExpiryInMinutes * 60 * 1000,
+      Date.now() + ms(this.jwtRefreshTokenExpire as ms.StringValue),
     );
 
     await this.prisma.refreshToken.create({
