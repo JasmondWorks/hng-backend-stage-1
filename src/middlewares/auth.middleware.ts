@@ -29,12 +29,13 @@ export const protect = async (
   }
 
   const token = authHeader.split(" ")[1]!;
-
   let userId: string;
   try {
+    console.log(token);
     const decoded = jwt.verify(token, envConfig.jwtAccessTokenSecret) as {
       sub: string;
     };
+    console.log(decoded);
     userId = decoded.sub;
   } catch {
     return next(new AppError("Invalid or expired token", 401));
